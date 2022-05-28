@@ -99,6 +99,7 @@
 #define led_1 9
 #define direction_servo 8
 #define buzzer A0
+#define sensor A1
 
 int gameMode = 0;  // 遊戲模式 0:1A2B, 1:反應小遊戲 (now: 0~1), 2:開車小遊戲
 bool gameNow = false;  // 是否進行遊戲中
@@ -292,6 +293,12 @@ void loop() {
             gameNow = false;
             lobby_lcdController(gameMode);
         }
+      	// 收音機
+        else if (gameMode == 3) {
+            radio();
+            gameNow = false;
+            lobby_lcdController(gameMode);
+        }
     }
 }
 
@@ -311,7 +318,7 @@ void lobby_lcdController(int value) {
             lcd.print("drive game");
             break;
         case 3:
-            lcd.print("Music Time");
+            lcd.print("Music Radio");
             break;
     }
 }
@@ -321,8 +328,8 @@ int rtGameMode(int value, int index) {
 
     // now 0~1
     if (tempValue < 0)
-        return 2;  //最後的模式
-    else if (tempValue > 2)
+        return 3;  //最後的模式
+    else if (tempValue > 3)
         return 0;  // 第一個模式
     else
         return tempValue;
@@ -731,6 +738,63 @@ void backgroundPlay(){
   delay(noteDuration);
   noTone(buzzer);
 
-  nowNote = (nowNote == miichanellNotes) ? 0 : nowNote + 2;
+  nowNote = (nowNote < miichanellNotes * 2) ? nowNote + 2 : 0;
   
+}
+
+// 收音機
+void radio() {
+    boolean doRadio = true;
+    int sensorValue = 0;
+    byte minuetgNote = 0, zeldathemeNote = 0, miichannelNote = 0;
+
+    while (doRadio) {
+        sensorValue = analogRead(sensor);  // 0 ~ 1024
+        // submit = 送出
+        // 讀取按鈕的狀態 (submit) 結束radio
+        if (buttonState_submit == HIGH &&
+            buttonUp_submit == true) {  // 左邊按鈕被按下，且剛剛沒有被按
+            buttonState_submit = !buttonState_submit;  // 切換
+
+            doRadio = false;
+
+            buttonUp_submit = false;  // 紀錄被按下
+        } else if (buttonState_submit == LOW && buttonUp_submit == false) {
+            buttonUp_submit = true;
+        }
+        Serial.println("sensorvalue:" + String(sensorValue));
+        if (sensorValue <= 300) {
+             radioPlay(minuetgNotes, minuetgMelody,
+             minuetgWholenote,minuetgNote);
+            minuetgNote =
+                (minuetgNote < minuetgNotes * 2) ? minuetgNote + 2 : 0;
+        } else if (sensorValue <= 600) {
+            radioPlay(zeldathemeNotes, zeldathemeMelody, zeldathemeWholenote,
+                      zeldathemeNote);
+            zeldathemeNote =
+                (zeldathemeNote < zeldathemeNotes * 2) ? zeldathemeNote + 2 : 0;
+        } else {
+            radioPlay(miichanellNotes, miichannelMelody, miichanellWholenote,
+            miichannelNote);
+            miichannelNote =
+                (miichannelNote < miichanellNotes * 2) ? miichannelNote + 2 : 0;
+        }
+    }
+}
+
+
+void radioPlay(int notes, int melody[], int wholenote, int tNote) {
+    // 每次都跳兩層
+    int tempDivider = melody[nowNote + 1];  // 每次停隔點
+
+    if (tempDivider > 0) {  // 若停止超過 0
+        noteDuration = (wholenote) / tempDivider;
+    } else if (tempDivider < 0) {
+        noteDuration = (wholenote) / abs(tempDivider);
+        noteDuration *= 1.5;  // 把時間拉長 1.5 倍
+    }
+
+    tone(buzzer, melody[tNote], noteDuration * 0.9);
+    delay(noteDuration);
+    noTone(buzzer);
 }
