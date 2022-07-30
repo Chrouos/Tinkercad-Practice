@@ -89,7 +89,7 @@
 #define NOTE_DS8 4978
 #define REST 0
 
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_PCF8574.h>
 #include <Servo.h>
 
 #define left_btn 13
@@ -113,53 +113,49 @@ int buttonState_submit = 0;
 boolean buttonUp_submit = true;
 
 unsigned long minTime = 500000;       // reaction game 變數
-LiquidCrystal lcd(7, 6, 5, 4, 3, 2);  // LCD
+LiquidCrystal_PCF8574 lcd(0x27);  // LCD
 Servo servo_9;                        // 伺服馬達區
 
 /* --- 音樂區 ---*/
 int miichannelTempo = 114;
 int miichannelMelody[] = {
 
-    NOTE_FS4, 8,  REST,     8, NOTE_A4,  8, NOTE_CS5, 8, REST,     8,
-    NOTE_A4,  8,  REST,     8, NOTE_FS4, 8,  // 1
-    NOTE_D4,  8,  NOTE_D4,  8, NOTE_D4,  8, REST,     8, REST,     4,
-    REST,     8,  NOTE_CS4, 8, NOTE_D4,  8, NOTE_FS4, 8, NOTE_A4,  8,
-    NOTE_CS5, 8,  REST,     8, NOTE_A4,  8, REST,     8, NOTE_F4,  8,
-    NOTE_E5,  -4, NOTE_DS5, 8, NOTE_D5,  8, REST,     8, REST,     4,
+    NOTE_FS4, 8, REST, 8, NOTE_A4, 8, NOTE_CS5, 8, REST, 8, NOTE_A4, 8, REST, 8,
+    NOTE_FS4, 8,  // 1
+    NOTE_D4, 8, NOTE_D4, 8, NOTE_D4, 8, REST, 8, REST, 4, REST, 8, NOTE_CS4, 8,
+    NOTE_D4, 8, NOTE_FS4, 8, NOTE_A4, 8, NOTE_CS5, 8, REST, 8, NOTE_A4, 8, REST,
+    8, NOTE_F4, 8, NOTE_E5, -4, NOTE_DS5, 8, NOTE_D5, 8, REST, 8, REST, 4,
 
-    NOTE_GS4, 8,  REST,     8, NOTE_CS5, 8, NOTE_FS4, 8, REST,     8,
-    NOTE_CS5, 8,  REST,     8, NOTE_GS4, 8,  // 5
-    REST,     8,  NOTE_CS5, 8, NOTE_G4,  8, NOTE_FS4, 8, REST,     8,
-    NOTE_E4,  8,  REST,     8, NOTE_E4,  8, NOTE_E4,  8, NOTE_E4,  8,
-    REST,     8,  REST,     4, NOTE_E4,  8, NOTE_E4,  8, NOTE_E4,  8,
-    REST,     8,  REST,     4, NOTE_DS4, 8, NOTE_D4,  8,
+    NOTE_GS4, 8, REST, 8, NOTE_CS5, 8, NOTE_FS4, 8, REST, 8, NOTE_CS5, 8, REST,
+    8, NOTE_GS4, 8,  // 5
+    REST, 8, NOTE_CS5, 8, NOTE_G4, 8, NOTE_FS4, 8, REST, 8, NOTE_E4, 8, REST, 8,
+    NOTE_E4, 8, NOTE_E4, 8, NOTE_E4, 8, REST, 8, REST, 4, NOTE_E4, 8, NOTE_E4,
+    8, NOTE_E4, 8, REST, 8, REST, 4, NOTE_DS4, 8, NOTE_D4, 8,
 
-    NOTE_CS4, 8,  REST,     8, NOTE_A4,  8, NOTE_CS5, 8, REST,     8,
-    NOTE_A4,  8,  REST,     8, NOTE_FS4, 8,  // 9
-    NOTE_D4,  8,  NOTE_D4,  8, NOTE_D4,  8, REST,     8, NOTE_E5,  8,
-    NOTE_E5,  8,  NOTE_E5,  8, REST,     8, REST,     8, NOTE_FS4, 8,
-    NOTE_A4,  8,  NOTE_CS5, 8, REST,     8, NOTE_A4,  8, REST,     8,
-    NOTE_F4,  8,  NOTE_E5,  2, NOTE_D5,  8, REST,     8, REST,     4,
+    NOTE_CS4, 8, REST, 8, NOTE_A4, 8, NOTE_CS5, 8, REST, 8, NOTE_A4, 8, REST, 8,
+    NOTE_FS4, 8,  // 9
+    NOTE_D4, 8, NOTE_D4, 8, NOTE_D4, 8, REST, 8, NOTE_E5, 8, NOTE_E5, 8,
+    NOTE_E5, 8, REST, 8, REST, 8, NOTE_FS4, 8, NOTE_A4, 8, NOTE_CS5, 8, REST, 8,
+    NOTE_A4, 8, REST, 8, NOTE_F4, 8, NOTE_E5, 2, NOTE_D5, 8, REST, 8, REST, 4,
 
-    NOTE_B4,  8,  NOTE_G4,  8, NOTE_D4,  8, NOTE_CS4, 4, NOTE_B4,  8,
-    NOTE_G4,  8,  NOTE_CS4, 8,  // 13
-    NOTE_A4,  8,  NOTE_FS4, 8, NOTE_C4,  8, NOTE_B3,  4, NOTE_F4,  8,
-    NOTE_D4,  8,  NOTE_B3,  8, NOTE_E4,  8, NOTE_E4,  8, NOTE_E4,  8,
-    REST,     4,  REST,     4, NOTE_AS4, 4, NOTE_CS5, 8, NOTE_D5,  8,
-    NOTE_FS5, 8,  NOTE_A5,  8, REST,     8, REST,     4,
+    NOTE_B4, 8, NOTE_G4, 8, NOTE_D4, 8, NOTE_CS4, 4, NOTE_B4, 8, NOTE_G4, 8,
+    NOTE_CS4, 8,  // 13
+    NOTE_A4, 8, NOTE_FS4, 8, NOTE_C4, 8, NOTE_B3, 4, NOTE_F4, 8, NOTE_D4, 8,
+    NOTE_B3, 8, NOTE_E4, 8, NOTE_E4, 8, NOTE_E4, 8, REST, 4, REST, 4, NOTE_AS4,
+    4, NOTE_CS5, 8, NOTE_D5, 8, NOTE_FS5, 8, NOTE_A5, 8, REST, 8, REST, 4,
 
-    REST,     2,  NOTE_A3,  4, NOTE_AS3, 4,  // 17
-    NOTE_A3,  -4, NOTE_A3,  8, NOTE_A3,  2, REST,     4, NOTE_A3,  8,
-    NOTE_AS3, 8,  NOTE_A3,  8, NOTE_F4,  4, NOTE_C4,  8, NOTE_A3,  -4,
-    NOTE_A3,  8,  NOTE_A3,  2,
+    REST, 2, NOTE_A3, 4, NOTE_AS3, 4,  // 17
+    NOTE_A3, -4, NOTE_A3, 8, NOTE_A3, 2, REST, 4, NOTE_A3, 8, NOTE_AS3, 8,
+    NOTE_A3, 8, NOTE_F4, 4, NOTE_C4, 8, NOTE_A3, -4, NOTE_A3, 8, NOTE_A3, 2,
 
-    REST,     2,  NOTE_B3,  4, NOTE_C4,  4,  // 21
-    NOTE_CS4, -4, NOTE_C4,  8, NOTE_CS4, 2, REST,     4, NOTE_CS4, 8,
-    NOTE_C4,  8,  NOTE_CS4, 8, NOTE_GS4, 4, NOTE_DS4, 8, NOTE_CS4, -4,
-    NOTE_DS4, 8,  NOTE_B3,  1,
+    REST, 2, NOTE_B3, 4, NOTE_C4, 4,  // 21
+    NOTE_CS4, -4, NOTE_C4, 8, NOTE_CS4, 2, REST, 4, NOTE_CS4, 8, NOTE_C4, 8,
+    NOTE_CS4, 8, NOTE_GS4, 4, NOTE_DS4, 8, NOTE_CS4, -4, NOTE_DS4, 8, NOTE_B3,
+    1,
 
-    NOTE_E4,  4,  NOTE_E4,  4, NOTE_E4,  4, REST,     8,  // 25
+    NOTE_E4, 4, NOTE_E4, 4, NOTE_E4, 4, REST, 8,  // 25
 
+   
 };
 int miichanellNotes =
     sizeof(miichannelMelody) / sizeof(miichannelMelody[0]) / 2;
@@ -168,33 +164,36 @@ int divider = 0, noteDuration = 0;
 
 int minuetgMelody[] = {
 
-    // Minuet in G - Petzold
-    // Score available at https://musescore.com/user/3402766/scores/1456391
-    NOTE_D5,  4, NOTE_G4,  8, NOTE_A4, 8, NOTE_B4, 8, NOTE_C5, 8,  // 1
-    NOTE_D5,  4, NOTE_G4,  4, NOTE_G4, 4, NOTE_E5, 4, NOTE_C5, 8, NOTE_D5, 8,
-    NOTE_E5,  8, NOTE_FS5, 8, NOTE_G5, 4, NOTE_G4, 4, NOTE_G4, 4, NOTE_C5, 4,
-    NOTE_D5,  8, NOTE_C5,  8, NOTE_B4, 8, NOTE_A4, 8,
-
-    NOTE_B4,  4, NOTE_C5,  8, NOTE_B4, 8, NOTE_A4, 8, NOTE_G4, 8,  // 6
-    NOTE_FS4, 4, NOTE_G4,  8, NOTE_A4, 8, NOTE_B4, 8, NOTE_G4, 8, NOTE_A4, -2,
-
+  // Minuet in G - Petzold
+  // Score available at https://musescore.com/user/3402766/scores/1456391
+  NOTE_D5,4, NOTE_G4,8, NOTE_A4,8, NOTE_B4,8, NOTE_C5,8, //1
+  NOTE_D5,4, NOTE_G4,4, NOTE_G4,4,
+  NOTE_E5,4, NOTE_C5,8, NOTE_D5,8, NOTE_E5,8, NOTE_FS5,8,
+  NOTE_G5,4, NOTE_G4,4, NOTE_G4,4,
+  NOTE_C5,4, NOTE_D5,8, NOTE_C5,8, NOTE_B4,8, NOTE_A4,8,
+  
+  NOTE_B4,4, NOTE_C5,8, NOTE_B4,8, NOTE_A4,8, NOTE_G4,8,//6
+  NOTE_FS4,4, NOTE_G4,8, NOTE_A4,8, NOTE_B4,8, NOTE_G4,8,
+  NOTE_A4,-2,
+  
 };
 int minuetgNotes = sizeof(minuetgMelody) / sizeof(minuetgMelody[0]) / 2;
 int minuetgWholenote = (60000 * 4) / 140;
 
 int zeldathemeMelody[] = {
 
-    // Based on the arrangement at https://www.flutetunes.com/tunes.php?id=169
-
-    NOTE_AS4, -2, NOTE_F4,  8,  NOTE_F4,  8,  NOTE_AS4, 8,  // 1
-    NOTE_GS4, 16, NOTE_FS4, 16, NOTE_GS4, -2, NOTE_AS4, -2,
-    NOTE_FS4, 8,  NOTE_FS4, 8,  NOTE_AS4, 8,  NOTE_A4,  16,
-    NOTE_G4,  16, NOTE_A4,  -2, REST,     1
-
+  //Based on the arrangement at https://www.flutetunes.com/tunes.php?id=169
+  
+  NOTE_AS4,-2,  NOTE_F4,8,  NOTE_F4,8,  NOTE_AS4,8,//1
+  NOTE_GS4,16,  NOTE_FS4,16,  NOTE_GS4,-2,
+  NOTE_AS4,-2,  NOTE_FS4,8,  NOTE_FS4,8,  NOTE_AS4,8,
+  NOTE_A4,16,  NOTE_G4,16,  NOTE_A4,-2,
+  REST,1
+ 
 };
-int zeldathemeNotes =
-    sizeof(zeldathemeMelody) / sizeof(zeldathemeMelody[0]) / 2;
+int zeldathemeNotes = sizeof(zeldathemeMelody) / sizeof(zeldathemeMelody[0]) / 2;
 int zeldathemeWholenote = (60000 * 4) / 88;
+
 
 void setup() {
     Serial.begin(9600);                          // 序列串輸出 Port:9600
@@ -202,6 +201,7 @@ void setup() {
     servo_9.attach(direction_servo, 500, 2500);  // 伺服馬達
 
     lcd.begin(16, 2);
+    lcd.setBacklight(255);
 
     /* --- 輸入腳位位置 ---*/
     pinMode(left_btn, INPUT);
@@ -220,11 +220,12 @@ void setup() {
 
 int nowNote = 0;
 void loop() {
-    backgroundPlay();
+  	backgroundPlay();
     buttonState_left = digitalRead(left_btn);
     buttonState_right = digitalRead(right_btn);
     buttonState_check = digitalRead(check_btn);
 
+      
     // 選擇遊戲畫面階段
     if (!gameNow) {
         // 讀取按鈕的狀態 (左)
@@ -293,7 +294,7 @@ void loop() {
             gameNow = false;
             lobby_lcdController(gameMode);
         }
-        // 收音機
+      	// 收音機
         else if (gameMode == 3) {
             radio();
             gameNow = false;
@@ -438,12 +439,15 @@ void guessNumber_1A2B() {
     if (times == 10) {
         lcd.clear();
         lcd.print("You are lose");
-        play(zeldathemeNotes, zeldathemeMelody, zeldathemeWholenote);
+      	play(zeldathemeNotes, zeldathemeMelody, zeldathemeWholenote);
     } else {
         lcd.clear();
         lcd.print("clear~");
-        play(minuetgNotes, minuetgMelody, minuetgWholenote);
+      	play(minuetgNotes, minuetgMelody, minuetgWholenote);
+      	
     }
+
+     
 }
 
 void guessNumber_lcdController(int value[4],
@@ -560,39 +564,46 @@ void driveGame() {
     boolean driveNow = true;
     int angle = 90;
     int randNumber = random(1, 4);  // 1~3
+    int sensorValue = 0;
     unsigned long startTime = 0, endTime = 0;
 
     startTime = millis();
     driveGame_lcdController(randNumber);
-    int durTime = 500;
-    int tempDriveRoad = 0;
+    int durTime = 1300;
+  	int tempDriveRoad = 0;
+  
     while (driveNow) {
         buttonState_left = digitalRead(left_btn);
         buttonState_right = digitalRead(right_btn);
+        sensorValue = analogRead(sensor);
+        int angle = map(sensorValue, 0, 1023, 0, 180);
+        Serial.println(sensorValue);
 
         // 讀取按鈕的狀態 (左)
-        if (buttonState_left == HIGH &&
-            buttonUp_left == true) {  // 左邊按鈕被按下，且剛剛沒有被按
-            buttonState_left = !buttonState_left;  // 切換
+        /*if (sensorValue <= 300) {  // 左邊按鈕被按下，且剛剛沒有被按
+            //buttonState_left = !buttonState_left;  // 切換
 
-            angle = (angle >= 165) ? 180 : angle + 15;
+            angle = (angle >= 165) ? 180 : angle = 50;
 
-            buttonUp_left = false;  // 紀錄被按下
-        } else if (buttonState_left == LOW && buttonUp_left == false) {
+            //buttonUp_left = false;  // 紀錄被按下
+        }else if (buttonState_left == LOW && buttonUp_left == false) {
             buttonUp_left = true;
         }
 
+        else if(sensorValue < 400 && sensorValue > 300 ){
+          angle = (angle >= 165) ? 180 : angle = 90;
+        }
+
         // 讀取按鈕的狀態 (右)
-        if (buttonState_right == HIGH &&
-            buttonUp_right == true) {  // 右邊按鈕被按下，且剛剛沒有被按
-            buttonState_right = !buttonState_right;  // 切換
+        else if (sensorValue >= 400) {  // 右邊按鈕被按下，且剛剛沒有被按
+            //buttonState_right = !buttonState_right;  // 切換
 
-            angle = (angle <= 15) ? 0 : angle - 15;
+            angle = (angle <= 15) ? 0 : angle = 130;
 
-            buttonUp_right = false;  // 紀錄被按下
+            //buttonUp_right = false;  // 紀錄被按下
         } else if (buttonState_right == LOW && buttonUp_right == false) {
             buttonUp_right = true;
-        }
+        }*/
 
         servo_9.write(angle);
 
@@ -616,20 +627,21 @@ void driveGame() {
                 driveGame_lcdController(4);
                 break;
             }
-
+			
             randNumber = tempNumber;
             driveGame_lcdController(randNumber);
 
             startTime = millis();
-            durTime -= 10;
-            tempDriveRoad++;
+            durTime -= 20;
+          	tempDriveRoad++;
         }
+      	
+      	
     }
-
-    if (tempDriveRoad > maxDriveRoad)
-        maxDriveRoad = tempDriveRoad;
-    lcd.setCursor(0, 1);
-    lcd.print("max:" + String(maxDriveRoad) + " U:" + String(tempDriveRoad));
+  
+  	if( tempDriveRoad > maxDriveRoad ) maxDriveRoad = tempDriveRoad;
+  	lcd.setCursor(0, 1);
+  	lcd.print("max:" + String(maxDriveRoad) + " U:" + String(tempDriveRoad));
 
     delay(3000);
 }
@@ -697,101 +709,95 @@ void driveGame_lcdController(int mode) {
     }  // switch mode end
 }
 
-void play(int notes, int melody[], int wholenote) {
-    // 每次都跳兩層
-    for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2) {
-        divider = melody[thisNote + 1];  // 每次停隔點
+void play(int notes, int melody[], int wholenote){
+  
+  // 每次都跳兩層
+  for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2) {
+    
+    divider = melody[thisNote + 1]; // 每次停隔點
 
-        if (divider > 0) {  // 若停止超過 0
-            noteDuration = (wholenote) / divider;
-        } else if (divider < 0) {
-            noteDuration = (wholenote) / abs(divider);
-            noteDuration *= 1.5;  // 把時間拉長 1.5 倍
-        }
-
-        tone(buzzer, melody[thisNote], noteDuration * 0.9);
-        delay(noteDuration);
-        noTone(buzzer);
-    }
-}
-
-void backgroundPlay() {
-    // 每次都跳兩層
-    divider = miichannelMelody[nowNote + 1];  // 每次停隔點
-
-    if (divider > 0) {  // 若停止超過 0
-        noteDuration = (miichanellWholenote) / divider;
+    if (divider > 0) { // 若停止超過 0
+      noteDuration = (wholenote) / divider;
     } else if (divider < 0) {
-        noteDuration = (miichanellWholenote) / abs(divider);
-        noteDuration *= 1.5;  // 把時間拉長 1.5 倍
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // 把時間拉長 1.5 倍
     }
 
-    tone(buzzer, miichannelMelody[nowNote], noteDuration * 0.9);
+    tone(buzzer, melody[thisNote], noteDuration * 0.9);
     delay(noteDuration);
     noTone(buzzer);
+  }
 
-    nowNote = (nowNote < miichanellNotes * 2) ? nowNote + 2 : 0;
+}
+
+void backgroundPlay(){
+  
+  // 每次都跳兩層    
+  divider = miichannelMelody[ nowNote + 1]; // 每次停隔點
+
+  if (divider > 0) { // 若停止超過 0
+    noteDuration = (miichanellWholenote) / divider;
+  } else if (divider < 0) {
+    noteDuration = (miichanellWholenote) / abs(divider);
+    noteDuration *= 1.5; // 把時間拉長 1.5 倍
+  }
+
+  tone(buzzer, miichannelMelody[nowNote], noteDuration * 0.9);
+  delay(noteDuration);
+  noTone(buzzer);
+
+  nowNote = (nowNote < miichanellNotes * 2) ? nowNote + 2 : 0;
+  
 }
 
 // 收音機
 void radio() {
+    Serial.println("radio");
     boolean doRadio = true;
     int sensorValue = 0;
     byte minuetgNote = 0, zeldathemeNote = 0, miichannelNote = 0;
-    lcd.clear();
-    lcd.print("FM:");
-    byte lastFM = -1;
+
     while (doRadio) {
         sensorValue = analogRead(sensor);  // 0 ~ 1024
-        lcd.setCursor(4, 0);
-        lcd.print(sensorValue);
-        // 讀取按鈕的狀態 (確認)
-        if (buttonState_check == HIGH &&
-            buttonUp_check == true) {  // 確認按鈕被按下，且剛剛沒有被按
-            buttonState_check = !buttonState_check;  // 切換
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("now playing...");
+        lcd.setCursor(0, 1);
+        // submit = 送出
+        // 讀取按鈕的狀態 (submit) 結束radio
+        if (buttonState_submit == HIGH &&
+            buttonUp_submit == true) {  // 左邊按鈕被按下，且剛剛沒有被按
+            buttonState_submit = !buttonState_submit;  // 切換
 
-            doRadio = false;
+            doRadio = true;
 
-            buttonUp_check = false;  // 紀錄被按下
-        } else if (buttonState_check == LOW && buttonUp_check == false) {
-            buttonUp_check = true;
+            buttonUp_submit = true;  // 紀錄被按下
+        } else if (buttonState_submit == LOW && buttonUp_submit == false) {
+            buttonUp_submit = true;
         }
+        Serial.println("sensorvalue:" + String(sensorValue));
         if (sensorValue <= 300) {
-            if (lastFM != 1) {
-                lcd.setCursor(0, 1);
-                lcd.print("minuetg");
-            }
-
-            radioPlay(minuetgNotes, minuetgMelody, minuetgWholenote,
-                      minuetgNote);
+             lcd.print("Minuetg");
+             radioPlay(minuetgNotes, minuetgMelody,
+             minuetgWholenote,minuetgNote);
             minuetgNote =
                 (minuetgNote < minuetgNotes * 2) ? minuetgNote + 2 : 0;
-            lastFM = 1;
         } else if (sensorValue <= 600) {
-            if (lastFM != 2) {
-                lcd.setCursor(0, 1);
-                lcd.print("zeldatheme");
-            }
-
+            lcd.print("Zeldatheme");
             radioPlay(zeldathemeNotes, zeldathemeMelody, zeldathemeWholenote,
                       zeldathemeNote);
             zeldathemeNote =
                 (zeldathemeNote < zeldathemeNotes * 2) ? zeldathemeNote + 2 : 0;
-            lastFM = 2;
         } else {
-            if (lastFM != 2) {
-                lcd.setCursor(0, 1);
-                lcd.print("miichanell");
-            }
-
+            lcd.print("Miichanell");
             radioPlay(miichanellNotes, miichannelMelody, miichanellWholenote,
-                      miichannelNote);
+            miichannelNote);
             miichannelNote =
                 (miichannelNote < miichanellNotes * 2) ? miichannelNote + 2 : 0;
-            lastFM = 3;
         }
     }
 }
+
 
 void radioPlay(int notes, int melody[], int wholenote, int tNote) {
     // 每次都跳兩層
